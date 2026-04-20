@@ -12,9 +12,9 @@ const GCM_AUTH_TAG_LENGTH = 16; // 128 bits
 /**
  * Generates an ML-KEM-768 keypair.
  *
- * @returns {{ publicKey: Uint8Array, privateKey: Uint8Array }}
+ * @returns {Promise<{ publicKey: Uint8Array, privateKey: Uint8Array }>}
  */
-export function generateKeypair() {
+export async function generateKeypair() {
   const kem = new MlKem768();
   const [publicKey, secretKey] = await kem.generateKeyPair();
   return { publicKey, privateKey: secretKey };
@@ -24,9 +24,9 @@ export function generateKeypair() {
  * Encapsulates a shared secret using the recipient's public key.
  *
  * @param {Uint8Array} publicKey
- * @returns {{ ciphertext: Uint8Array, sharedSecret: Uint8Array }}
+ * @returns {Promise<{ ciphertext: Uint8Array, sharedSecret: Uint8Array }>}
  */
-export function encapsulate(publicKey) {
+export async function encapsulate(publicKey) {
   const kem = new MlKem768();
   const [cipherText, sharedSecret] = await kem.encap(publicKey);
   return { ciphertext: cipherText, sharedSecret };
@@ -38,9 +38,9 @@ export function encapsulate(publicKey) {
  *
  * @param {Uint8Array} ciphertext
  * @param {Uint8Array} privateKey
- * @returns {Uint8Array} sharedSecret
+ * @returns {Promise<Uint8Array>} sharedSecret
  */
-export function decapsulate(ciphertext, privateKey) {
+export async function decapsulate(ciphertext, privateKey) {
   const kem = new MlKem768();
   return kem.decap(ciphertext, privateKey);
 }

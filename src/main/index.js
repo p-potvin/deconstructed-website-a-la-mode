@@ -1,7 +1,7 @@
 // Deconstructed — Electron Main Process Entry Point
 // VaultWares | Privacy First · Security Second · Post-Quantum Ready
 
-import { app, BrowserWindow, ipcMain, shell, Tray, Menu } from 'electron';
+import { app, BrowserWindow, ipcMain, shell } from 'electron';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { registerIpcHandlers } from './ipc-handlers.js';

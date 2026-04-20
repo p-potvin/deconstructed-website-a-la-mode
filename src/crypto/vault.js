@@ -41,9 +41,8 @@ export async function writeVault(sessionId, data) {
   // Encrypt the payload
   const { iv, ciphertext: aesCiphertext, authTag } = encryptAesGcm(plaintext, sharedSecret);
 
-  // Zero sensitive material immediately
+  // Zero the shared secret immediately after encryption
   zeroBuffer(Buffer.from(sharedSecret));
-  zeroBuffer(Buffer.from(privateKey));
 
   // Serialise to .vlt format
   const kemCtBuf = Buffer.from(kemCiphertext);
@@ -57,8 +56,13 @@ export async function writeVault(sessionId, data) {
   const filePath = vaultPath(sessionId);
   await writeFile(filePath, vltBuf, { mode: 0o600 });
 
-  // Store the public key separately so we can re-encrypt on key rotation
-  await writeFile(filePath + '.pub', Buffer.from(publicKey), { mode: 0o600 });
+  // Persist the private key so readVault can decapsulate later.
+  // Stored with restricted permissions (0o600). A production implementation
+  // should use the OS credential store or hardware-backed keychain instead.
+  await writeFile(filePath + '.key', Buffer.from(privateKey), { mode: 0o600 });
+
+  // Zero private key from memory now that it has been persisted
+  zeroBuffer(Buffer.from(privateKey));
 }
 
 /**
@@ -88,17 +92,20 @@ export async function readVault(sessionId) {
   offset = afterAuthTag;
   const aesCiphertext = vltBuf.subarray(offset);
 
-  // Re-derive the shared secret: generate a new keypair and re-encapsulate
-  // (This is a stub — production would use stored private key from OS keychain)
-  const { publicKey, privateKey } = await generateKeypair();
-  const { sharedSecret } = await encapsulate(publicKey);
+  // Load the stored private key for this session
+  const privateKeyBuf = await readFile(filePath + '.key');
+  const privateKey = new Uint8Array(privateKeyBuf);
 
+  // Decapsulate the shared secret
   let plaintext;
+  let sharedSecret;
   try {
+    sharedSecret = await decapsulate(new Uint8Array(kemCiphertext), privateKey);
     plaintext = decryptAesGcm({ iv, ciphertext: aesCiphertext, authTag }, sharedSecret);
   } finally {
-    zeroBuffer(Buffer.from(sharedSecret));
+    // Zero sensitive material from memory immediately after use
     zeroBuffer(Buffer.from(privateKey));
+    if (sharedSecret) zeroBuffer(Buffer.from(sharedSecret));
   }
 
   return JSON.parse(plaintext);
