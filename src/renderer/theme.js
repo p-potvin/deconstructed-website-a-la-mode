@@ -77,9 +77,9 @@ export const SOLARIZED_WARM_LIGHT = {
   accentHover:     BRAND.goldMuted,            // #B78C1E
   borderSubtle:    blendHex(SOLARIZED.base2, SOLARIZED.base01, 0.18),
   focusRing:       blendHex(BRAND.gold, SOLARIZED.base03, 0.15),
-  success:         '#16A34A',
-  warning:         '#D97706',
-  danger:          '#DC2626',
+  success:         '#15803D',
+  warning:         '#B45309',
+  danger:          '#B91C1C',
 };
 
 /**

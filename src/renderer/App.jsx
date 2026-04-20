@@ -53,7 +53,7 @@ function buildStyles(THEME) {
       fontSize: '13px',
       fontWeight: active ? 600 : 400,
       backgroundColor: active ? THEME.accent : 'transparent',
-      color: active ? THEME.textPrimary : THEME.textSecondary,
+      color: active ? (THEME.mode === 'light' ? THEME.background : THEME.textPrimary) : THEME.textSecondary,
       transition: 'background-color 0.15s',
     }),
     content: {
@@ -76,7 +76,6 @@ function buildStyles(THEME) {
       backgroundColor: THEME.surface,
       color: THEME.textSecondary,
       cursor: 'pointer',
-      outline: 'none',
     },
   };
 }
