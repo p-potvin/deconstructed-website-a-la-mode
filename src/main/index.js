@@ -10,7 +10,6 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const isDev = process.env.NODE_ENV === 'development';
 
 let mainWindow = null;
-let tray = null;
 
 function createMainWindow() {
   mainWindow = new BrowserWindow({
